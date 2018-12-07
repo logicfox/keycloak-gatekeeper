@@ -93,7 +93,8 @@ func (r *oauthProxy) loggingMiddleware(next http.Handler) http.Handler {
 			zap.Int("bytes", resp.BytesWritten()),
 			zap.String("client_ip", addr),
 			zap.String("method", req.Method),
-			zap.String("path", req.URL.Path))
+			zap.String("path", req.URL.Path),
+			zap.String("URI", req.URL.String()))
 	})
 }
 

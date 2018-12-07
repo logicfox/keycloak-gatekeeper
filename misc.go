@@ -83,6 +83,7 @@ func (r *oauthProxy) accessForbidden(w http.ResponseWriter, req *http.Request) c
 
 // redirectToURL redirects the user and aborts the context
 func (r *oauthProxy) redirectToURL(url string, w http.ResponseWriter, req *http.Request, statusCode int) context.Context {
+	r.log.Debug("Redirecting to", zap.String("url", url), zap.Int("statusCode", statusCode))
 	http.Redirect(w, req, url, statusCode)
 
 	return r.revokeProxy(w, req)

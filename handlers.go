@@ -51,6 +51,9 @@ func (r *oauthProxy) getRedirectionURL(w http.ResponseWriter, req *http.Request)
 		redirect = fmt.Sprintf("%s://%s",
 			defaultTo(req.Header.Get("X-Forwarded-Proto"), scheme),
 			defaultTo(req.Header.Get("X-Forwarded-Host"), req.Host))
+	case "*":
+		// allows passing in rd param for custom redirects
+		redirect = req.URL.Query().Get("rd")
 	default:
 		redirect = r.config.RedirectionURL
 	}
@@ -211,9 +214,16 @@ func (r *oauthProxy) oauthCallbackHandler(w http.ResponseWriter, req *http.Reque
 				zap.Error(err))
 		} else {
 			state = string(decoded)
+			if strings.HasPrefix(state, "https") {
+				state, err = url.QueryUnescape(state)
+			}
 		}
 	}
-	if r.config.BaseURI != "" {
+	r.log.Debug("State value is: ",
+		zap.String("state", req.URL.Query().Get("state")),
+		zap.String("decoded", state))
+
+	if r.config.BaseURI != "" && !strings.HasPrefix(state, "https") {
 		// assuming state starts with slash
 		state = r.config.BaseURI + state
 	}
