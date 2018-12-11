@@ -168,10 +168,14 @@ type Config struct {
 	OAuthURI string `json:"oauth-uri" yaml:"oauth-uri" usage:"the uri for proxy oauth endpoints" env:"OAUTH_URI"`
 	// Scopes is a list of scope we should request
 	Scopes []string `json:"scopes" yaml:"scopes" usage:"list of scopes requested when authenticating the user"`
+
 	// Upstream is the upstream endpoint i.e whom were proxying to
 	Upstream string `json:"upstream-url" yaml:"upstream-url" usage:"url for the upstream endpoint you wish to proxy" env:"UPSTREAM_URL"`
 	// UpstreamCA is the path to a CA certificate in PEM format to validate the upstream certificate
 	UpstreamCA string `json:"upstream-ca" yaml:"upstream-ca" usage:"the path to a file container a CA certificate to validate the upstream tls endpoint"`
+	// Use request param value for redirect if upstream is a file://. Defaults to redirect_uri
+	RedirectParam string `json:"redirect-param" yaml:"redirect-param" usage:"Override name of the redirect request param. Defaults to rd".`
+
 	// Resources is a list of protected resources
 	Resources []*Resource `json:"resources" yaml:"resources" usage:"list of resources 'uri=/admin*|methods=GET,PUT|roles=role1,role2'"`
 	// Headers permits adding customs headers across the board

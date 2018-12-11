@@ -55,6 +55,7 @@ func newDefaultConfig() *Config {
 		SelfSignedTLSHostnames:      hostnames,
 		RequestIDHeader:             "X-Request-ID",
 		ResponseHeaders:             make(map[string]string),
+		RedirectParam:               "rd",
 		SecureCookie:                true,
 		ServerIdleTimeout:           120 * time.Second,
 		ServerReadTimeout:           10 * time.Second,

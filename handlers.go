@@ -219,6 +219,25 @@ func (r *oauthProxy) oauthCallbackHandler(w http.ResponseWriter, req *http.Reque
 			}
 		}
 	}
+
+	if req.URL.Query().Get(r.config.RedirectParam) != "" {
+
+		var redirectURI string
+		var parsedRedirect *url.URL
+		redirectURI = req.URL.Query().Get(r.config.RedirectParam)
+
+		r.log.Info("Redirect param is set to",
+			zap.String(r.config.RedirectParam, redirectURI))
+		parsedRedirect, err = url.Parse(redirectURI)
+		if err != nil {
+			r.log.Warn("unable to parse the redirect parameter",
+				zap.String(r.config.RedirectParam, redirectURI),
+				zap.Error(err))
+		}
+		if strings.Contains(state, parsedRedirect.Hostname()) {
+			state = parsedRedirect.String()
+		}
+	}
 	r.log.Debug("State value is: ",
 		zap.String("state", req.URL.Query().Get("state")),
 		zap.String("decoded", state))
