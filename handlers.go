@@ -86,7 +86,22 @@ func (r *oauthProxy) oauthAuthorizationHandler(w http.ResponseWriter, req *http.
 		accessType = "offline"
 	}
 
-	authURL := client.AuthCodeURL(req.URL.Query().Get("state"), accessType, "")
+	var state string
+	state = req.URL.Query().Get("state")
+	if len(state) == 0 &&
+		strings.HasPrefix(r.config.Upstream, "file:/") {
+		var upstreamURL string
+		var encoded string
+		upstreamURL = req.URL.Query().Get(r.config.RedirectParam)
+		encoded = base64.StdEncoding.EncodeToString([]byte(upstreamURL))
+		state = string(encoded)
+		r.log.Debug("Setting state to encoded redirect param",
+			zap.String("param", r.config.RedirectParam),
+			zap.String("url", req.URL.Query().Get(r.config.RedirectParam)),
+			zap.String("state", state))
+	}
+
+	authURL := client.AuthCodeURL(state, accessType, "")
 	r.log.Debug("incoming authorization request from client address",
 		zap.String("access_type", accessType),
 		zap.String("auth_url", authURL),
@@ -235,6 +250,9 @@ func (r *oauthProxy) oauthCallbackHandler(w http.ResponseWriter, req *http.Reque
 				zap.Error(err))
 		}
 		if strings.Contains(state, parsedRedirect.Hostname()) {
+			r.log.Info("Setting state to redirect param",
+				zap.String(r.config.RedirectParam, redirectURI),
+				zap.Error(err))
 			state = parsedRedirect.String()
 		}
 	}
